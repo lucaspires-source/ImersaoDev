@@ -101,17 +101,11 @@ const cartaBatman = {
     }
 }
 
-const cartaMarvel = {
-    nome: "Capitã Marvel",
-    imagem: "https://cinepop.com.br/wp-content/uploads/2018/09/capitamarvel21.jpg",
-    atributos: {
-        ataque: 90,
-        defesa: 80,
-        magia: 0
-    }
-}
 let cartaMaquina = ''
 let cartaJogador = ''
+let pontosJogador = 0
+let pontosMaquina = 0
+
 const cartas = [
     cartaGuilherme, 
     cartaRafaela, 
@@ -122,27 +116,32 @@ const cartas = [
      cartaLol, 
      cartaNaruto, 
      cartaHarry, 
-     cartaBatman, 
-     cartaMarvel
+     cartaBatman
     ]
 
 
+
+const atualizaPlacar = () =>{
+    const divPlacar = document.getElementById('placar')
+    let html = "Jogador " + pontosJogador + " / " + pontosMaquina + " Máquina"
+    divPlacar.innerHTML = html
+}
+
 //sorteia as cartas entre os jogadores
 const sortearCarta = () => {
+    console.log("fui clickado")
     let numeroCartaMaquina = parseInt(Math.random() * cartas.length)
     cartaMaquina = cartas[numeroCartaMaquina]
-
+    cartas.splice(numeroCartaMaquina,1)
     let numeroCartaJogador = parseInt(Math.random() * cartas.length)
-    while (numeroCartaJogador == numeroCartaMaquina) {
-        numeroCartaJogador = parseInt(Math.random() * cartas.length)
-    }
     cartaJogador = cartas[numeroCartaJogador]
+    cartas.splice(numeroCartaJogador,1)
     document.getElementById("btnSortear").disabled = true
     document.getElementById("btnJogar").disabled = false
 
     exibeCartaJogador()
-
 }
+
 
 ///Exibe a Carta da Maquina
 const exibeCartaMaquina = () => {
@@ -154,7 +153,7 @@ const exibeCartaMaquina = () => {
     var opcoesTexto = ""
 
     for (let atributo in cartaMaquina.atributos) {
-        console.log(atributo)
+
         opcoesTexto += "<p type='text' name='atributo' value='" + atributo + "'>" + atributo + " " + cartaMaquina.atributos[atributo] + "<br>"
     }
 
@@ -164,6 +163,7 @@ const exibeCartaMaquina = () => {
     
 
 }
+
 ///Exibe a Carta do Jogador
 const exibeCartaJogador = () => {
     const divCartaJogador = document.getElementById("carta-jogador")
@@ -204,19 +204,66 @@ const obtemAtributiSelecionado = () => {
     }
 }
 
+
+//proxima rodadada
+
+const proximaRodada = () =>{
+    const divCartas = document.getElementById('cartas')
+
+    divCartas.innerHTML = `<div id="carta-jogador" class="carta"></div> <div id="carta-maquina" class="carta"></div>`
+
+    document.getElementById('btnSortear').disabled = false
+    document.getElementById('btnJogar').disabled = true
+    document.getElementById('btnProximaRodada').disabled = true
+
+    const divResultado = document.getElementById('resultado')
+    divResultado.innerHTML = ""
+}
+
+//atualiza a quantidade de cartas
+const atualizaQuantidadeDeCartas = () =>{
+    const DivQuantidadeDeCartas = document.getElementById("quantidade-cartas")
+    let html =  "Quantidade de cartas no Jogo:" + cartas.length
+    DivQuantidadeDeCartas.innerHTML = html
+}
+
+atualizaPlacar()
+atualizaQuantidadeDeCartas()    
 //Lógica do Jogo
 const jogar = () => {
     let atributoselecionado = obtemAtributiSelecionado()
     let divResultado = document.getElementById("resultado")
     exibeCartaMaquina()
+    document.getElementById("btnJogar").disabled = true
+    document.getElementById("btnProximaRodada").disabled = false
     if (cartaJogador.atributos[atributoselecionado] > cartaMaquina.atributos[atributoselecionado]) {
         htmlResultado = '<p class=resultado-final>Você venceu</p>'
         divResultado.innerHTML = htmlResultado
+        pontosJogador++
+        atualizaPlacar()
+        atualizaQuantidadeDeCartas()
     } else if (cartaJogador.atributos[atributoselecionado] < cartaMaquina.atributos[atributoselecionado]) {
         htmlResultado = '<p class=resultado-final>Você perdeu</p>'
         divResultado.innerHTML = htmlResultado
-    } else if (cartaJogador.atributos[atributoselecionado] == cartaMaquina.atributos[atributoselecionado]) {
+        pontosMaquina++
+        atualizaPlacar()
+        atualizaQuantidadeDeCartas()
+    } else  {
         htmlResultado = '<p class=resultado-final>Você empatou</p>'
         divResultado.innerHTML = htmlResultado
+    }
+
+    if (cartas.length == 0){
+        alert("Fim do jogo")
+
+        if(pontosJogador > pontosMaquina){
+            htmlResultado = '<p class=resultado-final>Você venceu,Parabéns!</p>'
+        }
+        else if (pontosJogador < pontosMaquina){
+            htmlResultado = '<p class=resultado-final>Você perdeu,mas não desanime!</p>'
+        }
+        else(
+            htmlResultado = '<p class=resultado-final>Você empatou</p>'
+        )
     }
 }
